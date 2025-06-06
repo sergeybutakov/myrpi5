@@ -11,7 +11,26 @@ MyRPi5 — это веб-приложение для мониторинга те
 * Топ 7 процессов по загрузке CPU, с отображением общего количества процессов.
 * Топ 7 контейнеров Docker по загрузке CPU, с отображением общего количества контейнеров.
 
-
+## Docker Compose:
+```
+services:
+  myrpi5:
+    image: sergeybutakov/myrpi5:latest
+    container_name: myrpi5
+    privileged: true
+    devices:
+      - /dev/gpiochip0:/dev/gpiochip0
+    volumes:
+      - /sys:/sys:ro
+      - /proc:/proc:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - UPDATE_INTERVAL=2.0 # интервал обновления в секундах
+    network_mode: host
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+```
 
 ## Подключение дополнительного кулера:
 Я использую кулер **noctua a4x10 pwm**, схема подключения: `yellow / 5v; grey / ground; blue / gpio14; green / gpio18`. Если удобно, пин управления оборотами и их подсчетами можно изменить на свои, далее в конфиге fan.py. 
@@ -35,25 +54,4 @@ HOLD_100_PERCENT = 10           # Время удержания максимал
 SHUTDOWN_DELAY = 30             # Задержка перед выключением кулера после снижения до минимальной температуры (сек)
 IMPULSES_PER_REVOLUTION = 2     # Количество импульсов тахометра за один оборот кулера
 TEMP_POLL_INTERVAL = 1          # Интервал опроса температуры процессора (сек) настроен под noctua a4x10 pwm
-```
-
-## Docker Compose:
-```
-services:
-  myrpi5:
-    image: sergeybutakov/myrpi5:latest
-    container_name: myrpi5
-    privileged: true
-    devices:
-      - /dev/gpiochip0:/dev/gpiochip0
-    volumes:
-      - /sys:/sys:ro
-      - /proc:/proc:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - UPDATE_INTERVAL=2.0 # интервал обновления в секундах
-    network_mode: host
-    ports:
-      - 5000:5000
-    restart: unless-stopped
 ```
