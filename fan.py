@@ -14,14 +14,14 @@ from gpiozero import PWMOutputDevice, DigitalInputDevice
 from time import sleep, time
 import os
 
-PWM_PIN = 14
-TACH_PIN = 23
-TEMP_MIN = 45
-TEMP_MAX = 75
-HOLD_100_PERCENT = 10
-SHUTDOWN_DELAY = 30
-IMPULSES_PER_REVOLUTION = 2
-TEMP_POLL_INTERVAL = 1
+PWM_PIN = 14                    # GPIO 14 для управления оборотами кулера
+TACH_PIN = 23                   # GPIO 23 для подсчета оборотов
+TEMP_MIN = 45                   # Минимальная температура включения кулера (°C)
+TEMP_MAX = 75                   # Максимальная температура для работы на полную мощность (°C)
+HOLD_100_PERCENT = 10           # Время удержания максимальных оборотов после достижения пиковой температуры (сек)
+SHUTDOWN_DELAY = 30             # Задержка перед выключением кулера после снижения до минимальной температуры (сек)
+IMPULSES_PER_REVOLUTION = 2     # Количество импульсов тахометра за один оборот кулера
+TEMP_POLL_INTERVAL = 1          # Интервал опроса температуры процессора (сек) настроен под noctua a4x10 pwm
 
 rpm_count = 0
 last_rpm_time = time()
