@@ -1,152 +1,255 @@
-from flask import Flask, render_template, jsonify, send_from_directory, make_response
-import threading
-import time
-import docker
+import psutil
+import shutil
 import os
+import glob
+import subprocess
 
-from sensor import get_all_sensors, get_top_processes
-from fan import calculate_rpm, fan_control_loop
-
-app = Flask(__name__)
-
-UPDATE_INTERVAL = float(os.environ.get('UPDATE_INTERVAL', 2))
-
-current_data = {
-    "NVME": 0,
-    "CPU": 0,
-    "RP1": 0,
-    "Noctua A4x10": 0,
-    "System Fan": 0,
-    "mem_total": 0,
-    "mem_available": 0,
-    "mem_used": 0,
-    "mem_percent": 0,
-    "disk_total": 0,
-    "disk_used": 0,
-    "disk_free": 0,
-    "disk_percent": 0,
-    "CPU_Usage": 0,
-    "Uptime": "N/A",
-    "top_tasks": [],
-    "top_containers": [],
-    "total_containers": 0
-}
-
-container_stats_data = {}
-container_threads = {}
-data_lock = threading.Lock()
-
-def listen_container_stats(container):
-    global container_stats_data
+def get_cpu_usage():
     try:
-        stats_stream = container.stats(decode=True, stream=True)
-        prev_stats = None
-        for stats in stats_stream:
-            if prev_stats:
-                cpu_delta = stats['cpu_stats']['cpu_usage']['total_usage'] - prev_stats['cpu_stats']['cpu_usage']['total_usage']
-                system_delta = stats['cpu_stats']['system_cpu_usage'] - prev_stats['cpu_stats']['system_cpu_usage']
-                num_cpus = len(stats['cpu_stats']['cpu_usage'].get('percpu_usage', [])) or 1
-                cpu_percent = 0.0
-                if system_delta > 0 and cpu_delta > 0:
-                    cpu_percent = (cpu_delta / system_delta) * num_cpus * 100
-            else:
-                cpu_percent = 0.0
+        return psutil.cpu_percent(interval=1)
+    except Exception:
+        return 0
 
-            mem_usage = stats['memory_stats']['usage'] - stats['memory_stats'].get('stats', {}).get('inactive_file', 0)
-            mem_usage_mb = mem_usage / (1024 * 1024)
-
-            with data_lock:
-                container_stats_data[container.name] = {
-                    'id': container.short_id,
-                    'name': container.name,
-                    'cpu': round(cpu_percent, 2),
-                    'mem': round(mem_usage_mb, 1)
-                }
-
-            prev_stats = stats
-    except Exception as e:
-        print(f"Ошибка в listen_container_stats для {container.name}: {e}")
-        with data_lock:
-            container_stats_data.pop(container.name, None)
-
-def start_container_stats_threads():
+def get_cpu_temp():
     try:
-        client = docker.DockerClient(base_url='unix://var/run/docker.sock')
-        containers = client.containers.list()
-        for container in containers:
-            if container.name not in container_threads or not container_threads[container.name].is_alive():
-                t = threading.Thread(target=listen_container_stats, args=(container,))
-                t.daemon = True
-                t.start()
-                container_threads[container.name] = t
-    except Exception as e:
-        print(f"Ошибка при запуске потоков контейнеров: {e}")
-
-def get_top_containers_from_cache(limit=7):
-    with data_lock:
-        stats_list = list(container_stats_data.values())
-    stats_list.sort(key=lambda x: x['cpu'], reverse=True)
-    return stats_list[:limit], len(stats_list)
-
-def unified_data_update():
-    """Единая функция для синхронного обновления всех данных"""
-    while True:
+        with open('/sys/class/thermal/thermal_zone0/temp') as f:
+            temp = int(f.read()) / 1000
+            if temp > 0:
+                return round(temp, 1)
+    except Exception:
+        pass
+    for path in glob.glob('/sys/class/hwmon/hwmon*/temp*_input'):
         try:
-            sensors = get_all_sensors()
-            top_tasks = get_top_processes(7)
+            with open(path) as f:
+                temp = int(f.read()) / 1000
+                if temp > 0:
+                    return round(temp, 1)
+        except Exception:
+            continue
+    return 0
 
-            top_containers, total_containers = get_top_containers_from_cache(7)
+def calculate_rpm():
+    from fan import calculate_rpm
+    return calculate_rpm()
 
-            with data_lock:
-                current_data.update(sensors)
-                current_data["top_tasks"] = top_tasks
-                current_data["top_containers"] = top_containers
-                current_data["total_containers"] = total_containers
+def get_system_fan_rpm():
+    try:
+        for hwmon in os.listdir('/sys/class/hwmon'):
+            with open(f'/sys/class/hwmon/{hwmon}/name') as f:
+                name = f.read().strip().lower()
+            if 'fan' in name or 'pwm' in name:
+                for fname in os.listdir(f'/sys/class/hwmon/{hwmon}'):
+                    if fname.startswith('fan') and fname.endswith('_input'):
+                        with open(f'/sys/class/hwmon/{hwmon}/{fname}') as ff:
+                            return int(ff.read().strip())
+    except Exception:
+        return 0
+    return 0
 
-        except Exception as e:
-            print(f"Ошибка при обновлении данных: {e}")
+def get_nvme_temp():
+    try:
+        for hwmon in os.listdir('/sys/class/hwmon'):
+            label_path = f'/sys/class/hwmon/{hwmon}/name'
+            if os.path.exists(label_path):
+                with open(label_path) as f:
+                    name = f.read().strip().lower()
+                if 'nvme' in name:
+                    for fname in os.listdir(f'/sys/class/hwmon/{hwmon}'):
+                        if fname.startswith('temp') and fname.endswith('_input'):
+                            with open(f'/sys/class/hwmon/{hwmon}/{fname}') as tf:
+                                temp = int(tf.read().strip()) / 1000.0
+                                return round(temp, 1)
+    except Exception:
+        pass
+    return 0
 
-        time.sleep(UPDATE_INTERVAL)
+def get_rp1_temp():
+    try:
+        for hwmon in os.listdir('/sys/class/hwmon'):
+            label_path = f'/sys/class/hwmon/{hwmon}/name'
+            if os.path.exists(label_path):
+                with open(label_path) as f:
+                    name = f.read().strip().lower()
+                if 'rp1' in name:
+                    for fname in os.listdir(f'/sys/class/hwmon/{hwmon}'):
+                        if fname.startswith('temp') and fname.endswith('_input'):
+                            with open(f'/sys/class/hwmon/{hwmon}/{fname}') as tf:
+                                temp = int(tf.read().strip()) / 1000.0
+                                return round(temp, 1)
+    except Exception:
+        pass
+    return 0
 
-def rescan_containers_periodically():
-    """Периодическое сканирование новых контейнеров"""
-    while True:
-        start_container_stats_threads()
-        time.sleep(30)
+def get_memory_usage():
+    mem = psutil.virtual_memory()
+    return {
+        "mem_total": mem.total,
+        "mem_available": mem.available,
+        "mem_used": mem.used,
+        "mem_percent": mem.percent
+    }
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+def get_disk_usage(mount_point='/'):
+    try:
+        usage = shutil.disk_usage(mount_point)
+        return {
+            "disk_total": usage.total,
+            "disk_used": usage.used,
+            "disk_free": usage.free,
+            "disk_percent": round((usage.used / usage.total) * 100, 1)
+        }
+    except Exception:
+        return {
+            "disk_total": 0,
+            "disk_used": 0,
+            "disk_free": 0,
+            "disk_percent": 0
+        }
 
-@app.route('/api/data')
-def api_data():
-    with data_lock:
-        return jsonify(current_data.copy())
+def get_uptime():
+    try:
+        with open('/proc/uptime', 'r') as f:
+            uptime_seconds = float(f.readline().split()[0])
+        days = int(uptime_seconds // (24 * 3600))
+        uptime_seconds %= (24 * 3600)
+        hours = int(uptime_seconds // 3600)
+        uptime_seconds %= 3600
+        minutes = int(uptime_seconds // 60)
+        if days > 0:
+            return f"{days}d {hours}h {minutes}m"
+        elif hours > 0:
+            return f"{hours}h {minutes}m"
+        else:
+            return f"{minutes}m"
+    except Exception:
+        return "N/A"
 
-@app.route('/manifest.json')
-def manifest():
-    return send_from_directory('static', 'manifest.json')
+def get_top_processes(n=7):
+    procs = []
+    for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info', 'cmdline']):
+        try:
+            if p.info['cmdline']:
+                exec_path = p.info['cmdline'][0]
+                exec_name = '/' + os.path.basename(exec_path)
+            else:
+                exec_name = '/' + (p.info['name'] or '')
+            mem_mb = int(round(p.info['memory_info'].rss / (1024 * 1024)))
+            procs.append({
+                'pid': p.info['pid'],
+                'cmd': exec_name,
+                'cpu': round(p.info['cpu_percent'], 1),
+                'mem': mem_mb,
+            })
+        except Exception:
+            continue
+    procs = sorted(procs, key=lambda x: (x['cpu'], x['mem']), reverse=True)
+    return procs[:n]
 
-@app.route('/sw.js')
-def service_worker():
-    response = make_response(send_from_directory('static', 'sw.js'))
-    response.headers['Content-Type'] = 'application/javascript'
-    response.headers['Service-Worker-Allowed'] = '/'
-    return response
+def get_process_count():
+    try:
+        return len(list(psutil.process_iter()))
+    except Exception:
+        return 0
 
-t_fan = threading.Thread(target=fan_control_loop)
-t_fan.daemon = True
-t_fan.start()
+def get_container_count():
+    try:
+        import docker
+        client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+        return len(client.containers.list())
+    except Exception:
+        return 0
 
-t_unified_update = threading.Thread(target=unified_data_update)
-t_unified_update.daemon = True
-t_unified_update.start()
+def get_monitored_disks():
+    disk_list = os.environ.get('MONITOR_DISKS', '')
+    disks = [d.strip() for d in disk_list.split(',') if d.strip()]
+    return disks
 
-t_rescan = threading.Thread(target=rescan_containers_periodically)
-t_rescan.daemon = True
-t_rescan.start()
+def get_disk_hwmon_temp(disk):
+    try:
+        for hwmon in os.listdir('/sys/class/hwmon'):
+            label_path = f'/sys/class/hwmon/{hwmon}/name'
+            if os.path.exists(label_path):
+                with open(label_path) as f:
+                    name = f.read().strip().lower()
+                if disk in name:
+                    for fname in os.listdir(f'/sys/class/hwmon/{hwmon}'):
+                        if fname.startswith('temp') and fname.endswith('_input'):
+                            with open(f'/sys/class/hwmon/{hwmon}/{fname}') as tf:
+                                temp = int(tf.read().strip()) / 1000.0
+                                return round(temp, 1)
+    except Exception:
+        pass
+    return None
 
-start_container_stats_threads()
+def get_disk_info(disk):
+    info = {}
+    temp = get_disk_hwmon_temp(disk)
+    if temp is not None:
+        info['temp'] = temp
+    try:
+        mount_point = f'/mnt/{disk}'
+        if os.path.ismount(mount_point):
+            usage = shutil.disk_usage(mount_point)
+            info['total'] = usage.total
+            info['used'] = usage.used
+            info['free'] = usage.free
+            info['percent'] = round((usage.used / usage.total) * 100, 1) if usage.total > 0 else 0
+        else:
+            if disk == 'root' or disk == '/':
+                usage = shutil.disk_usage('/')
+                info['total'] = usage.total
+                info['used'] = usage.used
+                info['free'] = usage.free
+                info['percent'] = round((usage.used / usage.total) * 100, 1) if usage.total > 0 else 0
+    except Exception:
+        pass
+    return info
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+def get_all_disks_info():
+    disks = get_monitored_disks()
+    result = {}
+    for disk in disks:
+        info = get_disk_info(disk)
+        if info:
+            result[disk] = info
+    return result
+
+def get_all_sensors():
+    sensors = {
+        "NVME": get_nvme_temp(),
+        "CPU": get_cpu_temp(),
+        "RP1": get_rp1_temp(),
+        "Noctua A4x10": calculate_rpm(),
+        "System Fan": get_system_fan_rpm(),
+        **get_memory_usage(),
+        **get_disk_usage('/'),
+        "CPU_Usage": get_cpu_usage(),
+        "Uptime": get_uptime(),
+        "process_count": get_process_count(),
+        "container_count": get_container_count(),
+        "power_status": get_power_status()
+    }
+    disks_info = get_all_disks_info()
+    if disks_info:
+        sensors['disks'] = disks_info
+    return sensors
+
+def get_power_status():
+    """
+    Проверяет статус питания Raspberry Pi через vcgencmd get_throttled.
+    Возвращает:
+        'power ok' — если проблем с питанием нет,
+        'low power' — если есть или были проблемы с питанием,
+        'unknown' — если не удалось получить статус.
+    """
+    try:
+        result = subprocess.run(['vcgencmd', 'get_throttled'], capture_output=True, text=True)
+        if result.returncode != 0:
+            return 'unknown'
+        val = result.stdout.strip().split('=')[-1]
+        val_int = int(val, 16)
+        if (val_int & 0x1) or (val_int & 0x10000):
+            return 'low power'
+        return 'power ok'
+    except Exception:
+        return 'unknown'
