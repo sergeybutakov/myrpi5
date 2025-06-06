@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
+body {
+    color: #090300 !important;
+    background-color: #f7f7f7 !important;
+  font-family: "Rubik", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+}
+
+#tasks-table, #docker-table {
+  font-size: .875em;
+  table-layout: fixed;
+  width: 100%;
+        font-family: "JetBrains Mono", monospace;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+th {
+  color: #f7f7f7 !important;
+  font-weight: 700 !important;
+
+}
+
+td {
+  color: #bd3657 !important;
+  font-weight: 300 !important;
+}
+
+#tasks-table td, #tasks-table th,
+#docker-table td, #docker-table th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-bg-dark {
+    color: #f7f7f7 !important;
+    background-color: #090300 !important;
+}
+
+.fs-4 {
+  font-weight: 500 !important;
+}
+
+.bi {
+  vertical-align: -0.125em;
+  fill: currentColor;
+}
+.feature-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 0.75rem;
+}
+.icon-square {
+  background-color: #090300 !important;
+  width: 3rem;
+  height: 3rem;
+}
+
+.text-primary {
+    color: #0883FF !important;
+}
+.text-succes {
+    color: #83FF08 !important;
+}
+.text-warning {
+    color: #FF8308 !important;
+}
+.text-danger {
+    color: #FF0883 !important;
+}
+.text-secondary {
+  color: #B6B6B6 !important;
+}
+.card-cover {
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+.feature-icon-small {
+  width: 3rem;
+  height: 3rem;
+}

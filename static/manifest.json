@@ -1,0 +1,23 @@
+{
+  "name": "RPi5 Мониторинг",
+  "short_name": "RPi5 Monitor",
+  "description": "Мониторинг температуры и вентиляторов Raspberry Pi 5",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/static/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/static/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ]
+}
