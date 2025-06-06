@@ -78,7 +78,6 @@ function updateData() {
     fetch('/api/data')
         .then(response => response.json())
         .then(data => {
-            // Обновление температур
             const nvmeTemp = data['NVME'];
             const cpuTemp = data['CPU'];
             const rp1Temp = data['RP1'];
@@ -91,7 +90,6 @@ function updateData() {
             if (cpuTemp !== undefined) setThermoIcon('cpu-icon', cpuTemp, 'CPU');
             if (rp1Temp !== undefined) setThermoIcon('rp1-icon', rp1Temp, 'RP1');
 
-            // Обновление вентиляторов
             const noctuaRpm = (data['Noctua A4x10'] !== undefined ? data['Noctua A4x10'] : null);
             const systemFanRpm = (data['System Fan'] !== undefined ? data['System Fan'] : null);
 
@@ -103,7 +101,6 @@ function updateData() {
             animateFan('fan-rpi5-icon', systemFanRpm);
             animateFan('fan-noctua-icon', noctuaRpm);
 
-            // Обновление статуса питания
             if ('power_status' in data) {
                 const el = document.getElementById('power-status');
                 if (el) {
@@ -120,7 +117,6 @@ function updateData() {
                 }
             }
 
-            // Обновление памяти
             if ('mem_used' in data && 'mem_total' in data && 'mem_percent' in data) {
                 const memUsedMB = Math.round(data['mem_used'] / (1024 * 1024)) + 'M';
                 const memTotalMB = Math.round(data['mem_total'] / (1024 * 1024)) + 'M';
@@ -131,7 +127,6 @@ function updateData() {
                 document.getElementById('mem_detail').textContent = '-';
             }
 
-            // Обновление диска
             if ('disk_percent' in data) {
                 document.getElementById('disk_percent').textContent = data['disk_percent'] + '%';
                 let diskUsed = formatBytes(data['disk_used'], 0);
@@ -145,11 +140,9 @@ function updateData() {
                 document.getElementById('disk_detail').textContent = '-';
             }
 
-            // Обновление CPU
             document.getElementById('cpu_usage').textContent = (data['CPU_Usage'] !== undefined ? data['CPU_Usage'] + '%' : '-');
             document.getElementById('last-update').innerHTML = ' ' + (data['Uptime'] || 'N/A');
 
-            // Обновление счетчиков
             if ('process_count' in data) {
                 document.getElementById('process-count').textContent = `(${data['process_count']})`;
             }
@@ -157,7 +150,6 @@ function updateData() {
                 document.getElementById('container-count').textContent = `(${data['total_containers']})`;
             }
 
-            // Обновление таблицы процессов
             if ('top_tasks' in data) {
                 const tbody = document.querySelector('#tasks-table tbody');
                 if (tbody) {
@@ -174,7 +166,6 @@ function updateData() {
                 }
             }
 
-            // Обновление таблицы контейнеров
             if ('top_containers' in data) {
                 const tbody = document.querySelector('#docker-table tbody');
                 if (tbody) {
@@ -199,14 +190,12 @@ function updateData() {
         });
 }
 
-// Динамическое управление интервалом обновления
 function setUpdateInterval(interval) {
     updateInterval = interval;
     clearInterval(window.updateTimer);
     window.updateTimer = setInterval(updateData, updateInterval);
 }
 
-// Инициализация
 window.onload = function() {
     updateData();
     window.updateTimer = setInterval(updateData, updateInterval);
