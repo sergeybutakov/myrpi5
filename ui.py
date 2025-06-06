@@ -92,14 +92,11 @@ def unified_data_update():
     """Единая функция для синхронного обновления всех данных"""
     while True:
         try:
-            # Обновляем сенсоры и процессы
             sensors = get_all_sensors()
             top_tasks = get_top_processes(7)
 
-            # Обновляем данные контейнеров
             top_containers, total_containers = get_top_containers_from_cache(7)
 
-            # Атомарно обновляем все данные
             with data_lock:
                 current_data.update(sensors)
                 current_data["top_tasks"] = top_tasks
@@ -115,7 +112,7 @@ def rescan_containers_periodically():
     """Периодическое сканирование новых контейнеров"""
     while True:
         start_container_stats_threads()
-        time.sleep(30)  # Увеличен интервал для уменьшения нагрузки
+        time.sleep(30)
 
 @app.route('/')
 def index():
@@ -137,22 +134,18 @@ def service_worker():
     response.headers['Service-Worker-Allowed'] = '/'
     return response
 
-# Запуск потоков
 t_fan = threading.Thread(target=fan_control_loop)
 t_fan.daemon = True
 t_fan.start()
 
-# Единый поток для обновления всех данных
 t_unified_update = threading.Thread(target=unified_data_update)
 t_unified_update.daemon = True
 t_unified_update.start()
 
-# Поток для периодического сканирования контейнеров
 t_rescan = threading.Thread(target=rescan_containers_periodically)
 t_rescan.daemon = True
 t_rescan.start()
 
-# Инициализация потоков статистики контейнеров
 start_container_stats_threads()
 
 if __name__ == '__main__':
