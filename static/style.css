@@ -1,33 +1,86 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
+@property --grad-color-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2193b0;
+}
+
+@property --grad-color-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #6dd5ed;
+}
+
+html, body {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+#hanging-icons {
+  padding-top: env(safe-area-inset-top);
+}
+
 body {
-    color: #090300 !important;
-    background-color: #f7f7f7 !important;
+  background: linear-gradient(120deg, var(--grad-color-1), var(--grad-color-2));
+  background-size: 400% 400%;
   font-family: "Rubik", sans-serif;
   font-optical-sizing: auto;
   font-weight: <weight>;
   font-style: normal;
+  color: #f7f7f7 !important;
+  transition: --grad-color-1 2s ease, --grad-color-2 2s ease;
+  animation-name: gradientMovement;
+  animation-timing-function: ease;
+  animation-iteration-count: infinite;
+}
+
+@keyframes gradientMovement {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.state-low {
+  animation-duration: 16s; /* Спокойная */
+}
+.state-middle {
+  animation-duration: 8s; /* Средняя */
+}
+.state-high {
+  animation-duration: 4s;  /* Волнующаяся */
+}
+
+/* Анимация для градиента */
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 #tasks-table, #docker-table {
   font-size: .875em;
   table-layout: fixed;
   width: 100%;
-        font-family: "JetBrains Mono", monospace;
-    font-optical-sizing: auto;
-    font-style: normal;
+  font-family: "JetBrains Mono", monospace;
+  font-optical-sizing: auto;
+  font-style: normal;
 }
 
 th {
-  color: #f7f7f7 !important;
-  font-weight: 700 !important;
-
+color: #f7f7f7 !important;
+font-weight: 700 !important;
+background-color: #09030000 !important;
 }
 
 td {
-  color: #bd3657 !important;
+  color: #f7f7f7 !important;
   font-weight: 300 !important;
+  background-color: #09030000 !important;
 }
 
 #tasks-table td, #tasks-table th,
@@ -38,7 +91,7 @@ td {
 }
 
 .text-bg-dark {
-    color: #f7f7f7 !important;
+    color: #ffffff00 !important;
     background-color: #090300 !important;
 }
 
@@ -46,19 +99,9 @@ td {
   font-weight: 500 !important;
 }
 
-.bi {
-  vertical-align: -0.125em;
-  fill: currentColor;
-}
-.feature-icon {
-  width: 4rem;
-  height: 4rem;
-  border-radius: 0.75rem;
-}
 .icon-square {
-  background-color: #090300 !important;
-  width: 3rem;
-  height: 3rem;
+  width: 5rem;
+  height: 5rem;
 }
 
 .text-primary {
@@ -76,12 +119,45 @@ td {
 .text-secondary {
   color: #B6B6B6 !important;
 }
-.card-cover {
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
 }
-.feature-icon-small {
-  width: 3rem;
-  height: 3rem;
+
+.badge {
+    --bs-badge-padding-x: 0.65em;
+    --bs-badge-padding-y: 0.35em;
+    --bs-badge-font-size: 0.75em;
+    --bs-badge-font-weight: 700;
+    display: inline-block;
+    padding: var(--bs-badge-padding-y) var(--bs-badge-padding-x);
+    font-size: var(--bs-badge-font-size);
+    font-weight: var(--bs-badge-font-weight);
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    padding: 0.4rem;
+}
+
+.top-cont {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 0.8rem;
 }
