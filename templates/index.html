@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>MyRPi5</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
@@ -11,188 +11,214 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icon.png') }}">
     <meta name="theme-color" content="#f7f7f7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MyRPi5">
     <style>
       .bd-placeholder-img {
-      font-size: 1.125rem;
-      text-anchor: middle;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      user-select: none;
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
       }
+
       @media (min-width: 768px) {
-      .bd-placeholder-img-lg {
-      font-size: 3.5rem;
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
       }
-      }
+
       .b-example-divider {
-      height: 3rem;
-      border-width: 0;
-      box-shadow: inset 0;
+        height: 3rem;
+        border-width: 0;
+        box-shadow: inset 0;
       }
+
       .b-example-vr {
-      flex-shrink: 0;
-      width: 1.5rem;
-      height: 100vh;
-      }
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 100vh;
       }
     </style>
-</head>
-<body class"text-bg-dark">
-
-  <div class="container px-4 pt-5" id="hanging-icons">
+  </head>
+  <body>
+    <div class="container px-4 pt-5" id="hanging-icons">
       <header class="pb-3">
         <div class="d-flex align-items-center text-decoration-none">
-        <img width="32" height="40" class="me-3" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="72" height="91">
-        <span class="fs-4">My Raspberry Pi5</span>
+          <img width="32" height="40" class="me-3" src="{{ url_for('static', filename='logo.svg') }}" alt="" width="72" height="91">
+          <span class="fs-4">My Raspberry Pi5</span>
         </div>
-    </header>
-    <p class="badge rounded-pill text-bg-dark" id="last-update"></p>
-    <p class="badge rounded-pill text-bg-dark" id="power-status"></p>
-
-    <div class="row g-3 py-3 row-cols-2 row-cols-lg-4">
-      <!-- Загрузка CPU -->
-<div class="col d-flex align-items-start">
-  <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-    <i class="bi text-bg-dark bi-cpu-fill"></i>
-  </div>
-  <div>
-    <h3 class="fs-2 mb-0" id="cpu_usage">0%</h3>
-    <p class="fs-5">CPU</p>
-  </div>
-</div>
-      <!-- Использование ОЗУ -->
-      <div class="col d-flex align-items-start">
-        <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-          <i class="bi text-bg-dark bi-memory"></i>
+      </header>
+      <p class="badge rounded-pill" id="last-update"></p>
+      <p class="badge rounded-pill" id="power-status"></p>
+      <div class="row g-3 py-3 row-cols-md-2 row-cols-lg-4">
+        <!-- Загрузка CPU -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square d-inline-flex align-items-center justify-content-center flex-shrink-0 me-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-cpu" viewBox="0 0 16 16">
+                <path d="M5 0a.5.5 0 0 1 .5.5V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2A2.5 2.5 0 0 1 14 4.5h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14a2.5 2.5 0 0 1-2.5 2.5v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14A2.5 2.5 0 0 1 2 11.5H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2A2.5 2.5 0 0 1 4.5 2V.5A.5.5 0 0 1 5 0m-.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 11.5 3zM5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5zM6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="cpu_usage">0%</h3>
+              <p class="fs-5">CPU</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <h3 class="fs-2 mb-0" id="mem_percent"></h3>
-          <p class="fs-5 mb-0">RAM</p>
-          <small id="mem_detail"></small>
+        <!-- Использование ОЗУ -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square d-inline-flex align-items-center justify-content-center flex-shrink-0 me-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-memory" viewBox="0 0 16 16">
+                <path d="M1 3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.586a1 1 0 0 0 .707-.293l.353-.353a.5.5 0 0 1 .708 0l.353.353a1 1 0 0 0 .707.293H15a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1zm.5 1h3a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5m5 0h3a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-4a.5.5 0 0 1 .5-.5m4.5.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5zM2 10v2H1v-2zm2 0v2H3v-2zm2 0v2H5v-2zm3 0v2H8v-2zm2 0v2h-1v-2zm2 0v2h-1v-2zm2 0v2h-1v-2z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="mem_percent"></h3>
+              <p class="fs-5 mb-0">RAM</p>
+              <small id="mem_detail"></small>
+            </div>
+          </div>
+        </div>
+        <!-- Использование диска -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square d-inline-flex align-items-center justify-content-center flex-shrink-0 me-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="45" height="45" fill="currentColor" class="bi bi-nvme" viewBox="0 0 16 16">
+                <path d="M1.5 4.5A.5.5 0 0 1 2 4h13.5a.5.5 0 0 1 .5.5V7a.5.5 0 0 1-.5.5.5.5 0 0 0 0 1 .5.5 0 0 1 .5.5v2.5a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5h-1A.5.5 0 0 1 0 11V7.5A.5.5 0 0 1 .5 7h1a.25.25 0 0 0 0-.5h-1A.5.5 0 0 1 0 6V5a.5.5 0 0 1 .5-.5zm1 .5a.5.5 0 0 1-.5.5h-.5a1.25 1.25 0 1 1 0 2.5H1v2.5h1a.5.5 0 0 1 .5.5H15V9.415a1.5 1.5 0 0 1 0-2.83V5z"/>
+                <path d="M4 6.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zM5 7v2h1V7zm3-.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5zM9 7v2h3V7z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="disk_percent"></h3>
+              <p class="fs-5 mb-0">System</p>
+              <small id="disk_detail"></small>
+            </div>
+          </div>
+        </div>
+        <!-- Температура NVME -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-2 flex-shrink-0 me-3">
+              <span id="nvme-icon"></span>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="nvme"></h3>
+              <p class="fs-5">NVME</p>
+            </div>
+          </div>
+        </div>
+        <!-- Температура CPU -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-2 flex-shrink-0 me-3">
+              <span id="cpu-icon"></span>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="cpu"></h3>
+              <p class="fs-5">Core</p>
+            </div>
+          </div>
+        </div>
+        <!-- Температура RP1 -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-2 flex-shrink-0 me-3">
+              <span id="rp1-icon"></span>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="rp1"></h3>
+              <p class="fs-5">RP1 Chip</p>
+            </div>
+          </div>
+        </div>
+        <!-- Вентилятор RPi5 -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square d-inline-flex align-items-center justify-content-center flex-shrink-0 me-3">
+              <svg xmlns="http://www.w3.org/2000/svg" id="fan-rpi5-icon" width="45" height="45" fill="currentColor" class="bi bi-fan" viewBox="0 0 16 16">
+                <path d="M10 3c0 1.313-.304 2.508-.8 3.4a2 2 0 0 0-1.484-.38c-.28-.982-.91-2.04-1.838-2.969a8 8 0 0 0-.491-.454A6 6 0 0 1 8 2c.691 0 1.355.117 1.973.332Q10 2.661 10 3m0 5q0 .11-.012.217c1.018-.019 2.2-.353 3.331-1.006a8 8 0 0 0 .57-.361 6 6 0 0 0-2.53-3.823 9 9 0 0 1-.145.64c-.34 1.269-.944 2.346-1.656 3.079.277.343.442.78.442 1.254m-.137.728a2 2 0 0 1-1.07 1.109c.525.87 1.405 1.725 2.535 2.377q.3.174.605.317a6 6 0 0 0 2.053-4.111q-.311.11-.641.199c-1.264.339-2.493.356-3.482.11ZM8 10c-.45 0-.866-.149-1.2-.4-.494.89-.796 2.082-.796 3.391q0 .346.027.678A6 6 0 0 0 8 14c.94 0 1.83-.216 2.623-.602a8 8 0 0 1-.497-.458c-.925-.926-1.555-1.981-1.836-2.96Q8.149 10 8 10M6 8q0-.12.014-.239c-1.02.017-2.205.351-3.34 1.007a8 8 0 0 0-.568.359 6 6 0 0 0 2.525 3.839 8 8 0 0 1 .148-.653c.34-1.267.94-2.342 1.65-3.075A2 2 0 0 1 6 8m-3.347-.632c1.267-.34 2.498-.355 3.488-.107.196-.494.583-.89 1.07-1.1-.524-.874-1.406-1.733-2.541-2.388a8 8 0 0 0-.594-.312 6 6 0 0 0-2.06 4.106q.309-.11.637-.199M8 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="system_fan"></h3>
+              <p class="fs-5">RPi Fan</p>
+            </div>
+          </div>
+        </div>
+        <!-- Вентилятор Noctua -->
+        <div class="col">
+          <div class="glass-effect d-flex align-items-start h-100">
+            <div class="icon-square d-inline-flex align-items-center justify-content-center flex-shrink-0 me-3">
+              <svg xmlns="http://www.w3.org/2000/svg" id="fan-noctua-icon" width="45" height="45" fill="currentColor" class="bi bi-fan" viewBox="0 0 16 16">
+                <path d="M10 3c0 1.313-.304 2.508-.8 3.4a2 2 0 0 0-1.484-.38c-.28-.982-.91-2.04-1.838-2.969a8 8 0 0 0-.491-.454A6 6 0 0 1 8 2c.691 0 1.355.117 1.973.332Q10 2.661 10 3m0 5q0 .11-.012.217c1.018-.019 2.2-.353 3.331-1.006a8 8 0 0 0 .57-.361 6 6 0 0 0-2.53-3.823 9 9 0 0 1-.145.64c-.34 1.269-.944 2.346-1.656 3.079.277.343.442.78.442 1.254m-.137.728a2 2 0 0 1-1.07 1.109c.525.87 1.405 1.725 2.535 2.377q.3.174.605.317a6 6 0 0 0 2.053-4.111q-.311.11-.641.199c-1.264.339-2.493.356-3.482.11ZM8 10c-.45 0-.866-.149-1.2-.4-.494.89-.796 2.082-.796 3.391q0 .346.027.678A6 6 0 0 0 8 14c.94 0 1.83-.216 2.623-.602a8 8 0 0 1-.497-.458c-.925-.926-1.555-1.981-1.836-2.96Q8.149 10 8 10M6 8q0-.12.014-.239c-1.02.017-2.205.351-3.34 1.007a8 8 0 0 0-.568.359 6 6 0 0 0 2.525 3.839 8 8 0 0 1 .148-.653c.34-1.267.94-2.342 1.65-3.075A2 2 0 0 1 6 8m-3.347-.632c1.267-.34 2.498-.355 3.488-.107.196-.494.583-.89 1.07-1.1-.524-.874-1.406-1.733-2.541-2.388a8 8 0 0 0-.594-.312 6 6 0 0 0-2.06 4.106q.309-.11.637-.199M8 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="fs-2 mb-0" id="noctua"></h3>
+              <p class="fs-5">Noctua A4x10</p>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- Использование диска -->
-      <div class="col d-flex align-items-start">
-        <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-          <i class="bi text-bg-dark bi-nvme-fill"></i>
+      <!-- топ 7 задач и контейнеров -->
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="top-cont">
+            <strong class="ms-3">TOP TASKS:</strong>
+            <span id="process-count"></span>
+            <div class="table-responsive">
+              <table class="table table-borderless table-sm mb-0 p-1" id="tasks-table">
+                <thead>
+                  <tr>
+                    <th style="width: 3em;">PID</th>
+                    <th style="width: 8em;">NAME</th>
+                    <th style="width: 2em;">CPU%</th>
+                    <th style="width: 2em;">RAM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Строки будут вставляться JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div>
-          <h3 class="fs-2 mb-0" id="disk_percent"></h3>
-          <p class="fs-5 mb-0">System</p>
-          <small id="disk_detail"></small>
-        </div>
-      </div>
-      <!-- Температура NVME -->
-      <div class="col d-flex align-items-start">
-        <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-          <i id="nvme-icon" class="bi text-bg-dark bi-thermometer-half"></i>
-        </div>
-        <div>
-          <h3 class="fs-2 mb-0" id="nvme"></h3>
-          <p class="fs-5">NVME</p>
-        </div>
-      </div>
-      <!-- Температура CPU -->
-      <div class="col d-flex align-items-start">
-        <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-            <i id="cpu-icon" class="bi text-bg-dark bi-thermometer-half"></i>
-        </div>
-        <div>
-          <h3 class="fs-2 mb-0" id="cpu"></h3>
-          <p class="fs-5">Core</p>
-        </div>
-      </div>
-      <!-- Температура RP1 -->
-<div class="col d-flex align-items-start">
-  <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-    <i id="rp1-icon" class="bi text-bg-dark bi-thermometer-half"></i>
-  </div>
-  <div>
-    <h3 class="fs-2 mb-0" id="rp1"></h3>
-    <p class="fs-5">RP1 Chip</p>
-  </div>
-</div>
-      <!-- Вентилятор RPi5 -->
-      <div id="fan-rpi5-block" class="col d-flex align-items-start">
-        <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-          <svg xmlns="http://www.w3.org/2000/svg" id="fan-rpi5-icon" width="24" height="24" fill="currentColor" class="bi bi-fan text-bg-dark text-bg-dark" viewBox="0 0 16 16">
-            <path d="M10 3c0 1.313-.304 2.508-.8 3.4a2 2 0 0 0-1.484-.38c-.28-.982-.91-2.04-1.838-2.969a8 8 0 0 0-.491-.454A6 6 0 0 1 8 2c.691 0 1.355.117 1.973.332Q10 2.661 10 3m0 5q0 .11-.012.217c1.018-.019 2.2-.353 3.331-1.006a8 8 0 0 0 .57-.361 6 6 0 0 0-2.53-3.823 9 9 0 0 1-.145.64c-.34 1.269-.944 2.346-1.656 3.079.277.343.442.78.442 1.254m-.137.728a2 2 0 0 1-1.07 1.109c.525.87 1.405 1.725 2.535 2.377q.3.174.605.317a6 6 0 0 0 2.053-4.111q-.311.11-.641.199c-1.264.339-2.493.356-3.482.11ZM8 10c-.45 0-.866-.149-1.2-.4-.494.89-.796 2.082-.796 3.391q0 .346.027.678A6 6 0 0 0 8 14c.94 0 1.83-.216 2.623-.602a8 8 0 0 1-.497-.458c-.925-.926-1.555-1.981-1.836-2.96Q8.149 10 8 10M6 8q0-.12.014-.239c-1.02.017-2.205.351-3.34 1.007a8 8 0 0 0-.568.359 6 6 0 0 0 2.525 3.839 8 8 0 0 1 .148-.653c.34-1.267.94-2.342 1.65-3.075A2 2 0 0 1 6 8m-3.347-.632c1.267-.34 2.498-.355 3.488-.107.196-.494.583-.89 1.07-1.1-.524-.874-1.406-1.733-2.541-2.388a8 8 0 0 0-.594-.312 6 6 0 0 0-2.06 4.106q.309-.11.637-.199M8 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-          </svg>
-        </div>
-        <div>
-          <h3 class="fs-2  mb-0" id="system_fan"></h3>
-          <p class="fs-5">RPi Fan</p>
+        <div class="col-md-6 mb-4">
+          <div class="top-cont">
+            <strong class="ms-3">TOP CONTAINERS</strong>
+            <span id="container-count"></span>
+            <div class="table-responsive">
+              <table class="table table-borderless table-sm mb-0 p-1" id="docker-table">
+                <thead>
+                  <tr>
+                    <th style="width: 3em;">ID</th>
+                    <th style="width: 8em;">NAME</th>
+                    <th style="width: 2em;">CPU%</th>
+                    <th style="width: 2em;">RAM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Строки будут вставляться JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-      <!-- Вентилятор Noctua -->
-      <div id="fan-noctua-block" class="col d-flex align-items-start">
-        <div class="icon-square rounded-3 d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
-          <svg xmlns="http://www.w3.org/2000/svg" id="fan-noctua-icon" width="24" height="24" fill="currentColor" class="bi bi-fan text-bg-dark" viewBox="0 0 16 16">
-            <path d="M10 3c0 1.313-.304 2.508-.8 3.4a2 2 0 0 0-1.484-.38c-.28-.982-.91-2.04-1.838-2.969a8 8 0 0 0-.491-.454A6 6 0 0 1 8 2c.691 0 1.355.117 1.973.332Q10 2.661 10 3m0 5q0 .11-.012.217c1.018-.019 2.2-.353 3.331-1.006a8 8 0 0 0 .57-.361 6 6 0 0 0-2.53-3.823 9 9 0 0 1-.145.64c-.34 1.269-.944 2.346-1.656 3.079.277.343.442.78.442 1.254m-.137.728a2 2 0 0 1-1.07 1.109c.525.87 1.405 1.725 2.535 2.377q.3.174.605.317a6 6 0 0 0 2.053-4.111q-.311.11-.641.199c-1.264.339-2.493.356-3.482.11ZM8 10c-.45 0-.866-.149-1.2-.4-.494.89-.796 2.082-.796 3.391q0 .346.027.678A6 6 0 0 0 8 14c.94 0 1.83-.216 2.623-.602a8 8 0 0 1-.497-.458c-.925-.926-1.555-1.981-1.836-2.96Q8.149 10 8 10M6 8q0-.12.014-.239c-1.02.017-2.205.351-3.34 1.007a8 8 0 0 0-.568.359 6 6 0 0 0 2.525 3.839 8 8 0 0 1 .148-.653c.34-1.267.94-2.342 1.65-3.075A2 2 0 0 1 6 8m-3.347-.632c1.267-.34 2.498-.355 3.488-.107.196-.494.583-.89 1.07-1.1-.524-.874-1.406-1.733-2.541-2.388a8 8 0 0 0-.594-.312 6 6 0 0 0-2.06 4.106q.309-.11.637-.199M8 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
-            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-          </svg>
-        </div>
-        <div>
-          <h3 class="fs-2  mb-0" id="noctua"></h3>
-          <p class="fs-5">Noctua A4x10</p>
-        </div>
-      </div>
-
-    </div>
-
-<!-- топ 7 задач -->
-<div class="row">
-  <div class="col-md-6 mb-4 ">
-        <strong class="ms-3">TOP TASKS:</strong> <span id="process-count" class="text-secondary"></span>
-        <div class="bg-dark text-white rounded-3 p-2 table-responsive">
-          <table class="table table-dark table-borderless table-sm mb-0 p-1" id="tasks-table">
-            <thead>
-              <tr>
-                <th style="width: 3em;">PID</th>
-                <th style="width: 8em;">NAME</th>
-                <th style="width: 2em;">CPU%</th>
-                <th style="width: 2em;">RAM</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Строки будут вставляться JS -->
-            </tbody>
-          </table>
-        </div>
-  </div>
-<!-- топ 7 контейнеров -->
-  <div class="col-md-6 mb-4">
-      <strong class="ms-3">TOP CONTAINERS</strong> <span class="text-secondary" id="container-count"></span>
-    <div class="bg-dark text-white rounded-3 p-2 table-responsive">
-      <table class="table table-dark table-borderless table-sm mb-0 p-1" id="docker-table">
-        <thead>
-          <tr>
-            <th style="width: 3em;">ID</th>
-            <th style="width: 8em;">NAME</th>
-            <th style="width: 2em;">CPU%</th>
-            <th style="width: 2em;">RAM</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Строки будут вставляться JS -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</div>
-  </div>
-    <footer class="footer mt-auto py-3">
+      <footer class="footer mt-auto py-3">
         <div class="container text-center">
-            <span class="">©2025 sergeybutakov</span>
+          <span>©2025 sergeybutakov</span>
         </div>
-    </footer>
-<script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-<script src="{{ url_for('static', filename='main.js') }}"></script>
-<script src="{{ url_for('static', filename='pwa.js') }}"></script>
-</body>
+      </footer>
+    </div>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="{{ url_for('static', filename='pwa.js') }}"></script>
+  </body>
 </html>
